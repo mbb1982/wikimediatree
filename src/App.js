@@ -42,37 +42,48 @@ function App() {
     setCurrentCategory(node.key)
   }
 
+  // Add some CSS for scrollable columns
+  // You can put this in App.css or inside a <style> tag
+  // Example inline style below
+
   return (
     <div>
-      
+      <style>
+        {`
+          .scrollable-column {
+            max-height: 70vh;
+            overflow-y: auto;
+          }
+        `}
+      </style>
       <Container data-bs-theme="dark" fluid>
-       <h1 className="display-4 text-center text-primary">Wikimedia Category Viewer </h1> 
-      <Row class="row">
-      <Col>
-      <Form> 
-        <Form.Group className="mb-3" controlId="formTopCategory">
-          <Form.Label>Top Category</Form.Label>
-          <Form.Control 
-            type="text" 
-            placeholder="Enter top category" 
-            value={topCategory} 
-            onChange={(e) => {setTopCategory(e.target.value); setCurrentCategory(e.target.value);}} 
-          />
-        </Form.Group>
-      
-      </Form></Col>
-      </Row>
-      <Row class="row">
-      <Col xs={4} className="scrollable-column">
-      <NewTree
-          topLevel={topCategory}
-          onSelect={handleSelect}
-        />
-      </Col>
-      <Col xs={8} className="scrollable-column">
-      <Images category={currentCategory} />
-      </Col>
-      </Row>
+        <h1 className="display-4 text-center text-primary">Wikimedia Category Viewer </h1>
+        <Row>
+          <Col>
+            <Form>
+              <Form.Group className="mb-3" controlId="formTopCategory">
+                <Form.Label>Top Category</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter top category"
+                  value={topCategory}
+                  onChange={(e) => { setTopCategory(e.target.value); setCurrentCategory(e.target.value); }}
+                />
+              </Form.Group>
+            </Form>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={4} className="scrollable-column">
+            <NewTree
+              topLevel={topCategory}
+              onSelect={handleSelect}
+            />
+          </Col>
+          <Col xs={8} className="scrollable-column">
+            <Images category={currentCategory} />
+          </Col>
+        </Row>
       </Container>
     </div>
   );
