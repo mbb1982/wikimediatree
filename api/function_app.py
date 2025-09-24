@@ -13,14 +13,14 @@ async def read_root():
 @fast_app.get("/api/get_children/{wiki}/{category}")
 async def get_children(wiki: str, category: str):
     category=category.replace("Category:","")
-    url="https://"+wiki+"/w/api.php?action=query&cmtitle=Category:"+category+"&list=categorymembers&format=json&cmtype=subcat"
+    url="https://"+wiki+"/w/api.php?action=query&cmtitle=Category:"+category+"&list=categorymembers&format=json&cmtype=subcat&cmlimit=500"
     response = await client.get(url)
     return [{"key":x['title'].replace("Category:", ""),"title":x['title'].replace("Category:", "")} for x in response.json()['query']['categorymembers']]
 
 @fast_app.get("/api/get_files/{wiki}/{category}")
 async def get_files(wiki: str, category: str):
     category=category.replace("Category:","")
-    url="https://"+wiki+"/w/api.php?action=query&gcmtitle=Category:"+category+"&generator=categorymembers&format=json&gcmtype=file&prop=imageinfo&iiprop=url"
+    url="https://"+wiki+"/w/api.php?action=query&gcmtitle=Category:"+category+"&generator=categorymembers&format=json&gcmtype=file&prop=imageinfo&iiprop=url&gcmlimit=25"
     response = await client.get(url)
     
     
