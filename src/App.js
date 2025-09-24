@@ -4,7 +4,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import NewTree from './Tree';
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Images = ({category}) =>
 {
@@ -44,8 +44,11 @@ function App() {
 
   return (
     <div>
-      <h1>Wikipedia Category Viewer -</h1>
+      
       <Container data-bs-theme="dark" fluid>
+       <h1 className="display-4 text-center text-primary">Wikimedia Category Viewer </h1> 
+      <Row class="row">
+      <Col>
       <Form> 
         <Form.Group className="mb-3" controlId="formTopCategory">
           <Form.Label>Top Category</Form.Label>
@@ -57,12 +60,19 @@ function App() {
           />
         </Form.Group>
       
-      </Form>
+      </Form></Col>
+      </Row>
+      <Row class="row">
+      <Col xs={4} className="scrollable-column">
       <NewTree
           topLevel={topCategory}
           onSelect={handleSelect}
         />
+      </Col>
+      <Col xs={8} className="scrollable-column">
       <Images category={currentCategory} />
+      </Col>
+      </Row>
       </Container>
     </div>
   );
