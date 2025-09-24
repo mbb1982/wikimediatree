@@ -12,6 +12,7 @@ const Images = ({category}) =>
 
    useEffect(() => {
       console.log("Fetching images for category:", category);
+      setData(null);
       fetch(`/api/get_files/commons.wikimedia.org/${category}`).then(res => res.json()).then(setData)
         
     }, [category]);
