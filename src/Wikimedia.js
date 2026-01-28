@@ -1,0 +1,55 @@
+import { useFetch } from 'use-http';
+import { ListGroup, Accordion } from 'react-bootstrap';
+import RenderJson from './RenderJson';
+
+const Categories = ({ endpoint, title }) => {  
+    console.log("Fetching categories for:", endpoint, title);
+    const { loading, error, data } = useFetch(`/api/mediawiki/categories/${endpoint}/${title}`, {}, [endpoint, title]);
+
+    if (loading) return <div>Loading categories...</div>;
+    if (error) return <div>Error loading categories: {error.message}</div>;
+    
+    return (
+        <ListGroup>
+            {data.map((category) => (
+                <ListGroup.Item key={category}>
+                    {category}
+                </ListGroup.Item>
+            ))}
+        </ListGroup>
+    );
+}
+
+const Infobox = ({ endpoint, title }) => {  
+    console.log("Fetching infobox for:", endpoint, title);
+    const { loading, error, data } = useFetch(`/api/mediawiki/infobox/${endpoint}/${title}`, {}, [endpoint, title]);
+
+    if (loading) return <div>Loading infobox...</div>;
+    if (error) return <div>Error loading infobox: {error.message}</div>;
+    
+    return (
+        <RenderJson data={data} />
+    );
+}
+
+const WikimediaView = ({ endpoint, title }) => {
+    return (
+        <Accordion defaultActiveKey={["0","1"]} alwaysOpen>
+            <Accordion.Item eventKey="0">
+                <Accordion.Header>Categories</Accordion.Header>
+                <Accordion.Body>
+                    <Categories endpoint={endpoint} title={title} />
+                </Accordion.Body>
+            </Accordion.Item>
+            <Accordion.Item eventKey="1">
+                <Accordion.Header>Infobox</Accordion.Header>
+                <Accordion.Body>
+                    <Infobox endpoint={endpoint} title={title} />
+                </Accordion.Body>
+            </Accordion.Item>
+        </Accordion>
+    );
+}
+
+export default WikimediaView;
+
