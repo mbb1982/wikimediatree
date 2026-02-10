@@ -21,7 +21,6 @@ const Categories = ({ endpoint, title }) => {
 }
 
 const Infobox = ({ endpoint, title }) => {  
-    console.log("Fetching infobox for:", endpoint, title);
     const { loading, error, data } = useFetch(`/api/mediawiki/infobox/${endpoint}/${title}`, {}, [endpoint, title]);
 
     if (loading) return <div>Loading infobox...</div>;
@@ -30,6 +29,18 @@ const Infobox = ({ endpoint, title }) => {
     return (
         <RenderJson data={data} />
     );
+}
+
+const ResolvedWikidata = ({endpoint, title}) => {
+    const { loading, error, data } = useFetch(`/api/wikidata/resolve/${endpoint}/${title}`, {}, [endpoint, title]);
+        
+    if (loading) return <div>Loading resolved Wikidata...</div>;
+    if (error) return <div>Error loading resolved Wikidata: {error.message}</div>;
+    return (
+        <div>
+            {data}
+        </div>
+    )
 }
 
 const WikimediaView = ({ endpoint, title }) => {
@@ -45,6 +56,12 @@ const WikimediaView = ({ endpoint, title }) => {
                 <Accordion.Header>Infobox</Accordion.Header>
                 <Accordion.Body>
                     <Infobox endpoint={endpoint} title={title} />
+                </Accordion.Body>
+            </Accordion.Item>
+            <Accordion.Item eventKey="2">
+                <Accordion.Header>Resolved Wikidata</Accordion.Header>
+                <Accordion.Body>
+                    <ResolvedWikidata endpoint={endpoint} title={title} />
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>

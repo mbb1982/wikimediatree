@@ -3,6 +3,8 @@ import fastapi
 from httpx_cache import AsyncClient 
 from dataaccess.common import USER_AGENT
 from dataaccess.mediawiki import router as mediawiki_router
+from dataaccess.wikidata import router as wikidata_router
+from wikidataquery import router as wikidata_query_router
 
 client = AsyncClient()
 client.headers.update({'User-Agent': USER_AGENT})
@@ -10,6 +12,8 @@ client.headers.update({'User-Agent': USER_AGENT})
 fast_app = fastapi.FastAPI()
 
 fast_app.include_router(mediawiki_router, prefix="/api")
+fast_app.include_router(wikidata_router, prefix="/api")
+fast_app.include_router(wikidata_query_router, prefix="/api")
 
 @fast_app.get("/api/xxx")
 async def read_root():

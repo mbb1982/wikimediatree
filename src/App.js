@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
 import WikimediaView from './Wikimedia';
+import WikidataView from './Wikidata';
 import { useParams } from 'react-router-dom';
 
 const Images = ({wiki,category}) =>
@@ -108,6 +109,11 @@ const WikimediaViewWrapper = () => {
   return <WikimediaView endpoint={endpoint} title={title} />;
 }
 
+const WikidataViewWrapper = () => {
+  const { wditem } = useParams();
+  return <WikidataView wditem={wditem} />;
+}
+
 function App() {
   return (
     <Router>
@@ -115,6 +121,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<WMTree />} />
           <Route path="wikimedia/:endpoint/:title" element={<WikimediaViewWrapper />} />
+          <Route path="wikidata/:wditem" element={<WikidataViewWrapper />} />
         </Route>
       </Routes>
     </Router>
