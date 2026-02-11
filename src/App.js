@@ -1,8 +1,9 @@
-import React, { use, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import { Accordion } from 'react-bootstrap';
 import NewTree from './Tree';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -10,6 +11,8 @@ import { Outlet } from 'react-router-dom';
 import WikimediaView from './Wikimedia';
 import WikidataView from './Wikidata';
 import { useParams } from 'react-router-dom';
+import { useFetch } from 'use-http';
+
 
 const Images = ({wiki,category}) =>
 {
@@ -104,14 +107,65 @@ function WMTree() {
   );
 }
 
-const WikimediaViewWrapper = () => {
-  const { endpoint, title } = useParams();
-  return <WikimediaView endpoint={endpoint} title={title} />;
+const WikimediaPage = ({ endpoint, title }) => {
+    const { loading: wdloading, error: wderror, data: wditemid } = useFetch(`/api/wikidata/resolve/${endpoint}/${title}`, {}, [endpoint, title]);
+     
+    return (
+    <Accordion defaultActiveKey={["0","1"]} alwaysOpen>
+        <Accordion.Item eventKey="0">
+            <Accordion.Header>Wikimedia Data</Accordion.Header>
+            <Accordion.Body>
+                <WikimediaView endpoint={endpoint} title={title} />
+            </Accordion.Body>
+        </Accordion.Item>
+        <Accordion.Item eventKey="1">
+            <Accordion.Header>Wikidata</Accordion.Header>
+            <Accordion.Body>
+                { wditemid ? <WikidataView wditem={wditemid} /> : (wdloading ? <div>Loading Wikidata...</div> : (wderror ? <div>Error loading Wikidata: {wderror.message}</div> : <div>No Wikidata item found. {wditemid}</div>)) }
+            </Accordion.Body>
+        </Accordion.Item>
+    </Accordion>
+    );
 }
 
-const WikidataViewWrapper = () => {
+const WikidataPage = ({wditem}) => {
+    const { loading: enloading, error: enerror, data: enpageid } = useFetch(`/api/wikidata/wikimedia/en.wikipedia.org/${wditem}`, {}, [wditem]);
+    const { loading: comloading, error: comerror, data: compageid } = useFetch(`/api/wikidata/wikimedia/commons.wikimedia.org/${wditem}`, {}, [wditem]);
+
+    return (
+        <Accordion defaultActiveKey={[]} alwaysOpen>
+            <Accordion.Item eventKey="0">
+                <Accordion.Header>Wikidata</Accordion.Header>
+                <Accordion.Body>
+                    <WikidataView wditem={wditem} />
+                </Accordion.Body>
+            </Accordion.Item>
+            <Accordion.Item eventKey="1">
+                <Accordion.Header>English Wikipedia</Accordion.Header>
+                <Accordion.Body>
+                    { enpageid ? <WikimediaView endpoint="en.wikipedia.org" title={enpageid} /> : (enloading ? <div>Loading English Wikipedia...</div> : (enerror ? <div>Error loading English Wikipedia: {enerror.message}</div> : <div>No English Wikipedia page found.</div>)) }
+                </Accordion.Body>
+            </Accordion.Item>
+            <Accordion.Item eventKey="2">
+                <Accordion.Header>Commons</Accordion.Header>
+                <Accordion.Body>
+                    { compageid ? <WikimediaView endpoint="commons.wikimedia.org" title={compageid} /> : (comloading ? <div>Loading Commons...</div> : (comerror ? <div>Error loading Commons: {comerror.message}</div> : <div>No Commons page found.</div>)) }
+                </Accordion.Body>
+            </Accordion.Item>
+        </Accordion>
+    );
+}
+
+const WikimediaTop = () => {
+  const { endpoint, title } = useParams();
+  return <WikimediaPage endpoint={endpoint} title={title} />; 
+}
+
+
+
+const WikidataTop = () => {
   const { wditem } = useParams();
-  return <WikidataView wditem={wditem} />;
+  return <WikidataPage wditem={wditem} />;
 }
 
 function App() {
@@ -120,8 +174,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<WMTree />} />
-          <Route path="wikimedia/:endpoint/:title" element={<WikimediaViewWrapper />} />
-          <Route path="wikidata/:wditem" element={<WikidataViewWrapper />} />
+          <Route path="wikimedia/:endpoint/:title" element={<WikimediaTop />} />
+          <Route path="wikidata/:wditem" element={<WikidataTop />} />
         </Route>
       </Routes>
     </Router>

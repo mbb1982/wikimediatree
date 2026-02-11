@@ -153,7 +153,7 @@ const WikidataMedia = ({wditem}) => {
 
 const wikidataView = ({wditem}) => {
     return (
-        <Accordion defaultActiveKey={["0","1","2","3","4"]} alwaysOpen>
+        <Accordion defaultActiveKey={[]} alwaysOpen>
             <Accordion.Item eventKey="0">
                 <Accordion.Header>Related Properties</Accordion.Header>
                 <Accordion.Body>

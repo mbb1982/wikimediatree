@@ -45,7 +45,7 @@ const ResolvedWikidata = ({endpoint, title}) => {
 
 const WikimediaView = ({ endpoint, title }) => {
     return (
-        <Accordion defaultActiveKey={["0","1"]} alwaysOpen>
+        <Accordion defaultActiveKey={[]} alwaysOpen>
             <Accordion.Item eventKey="0">
                 <Accordion.Header>Categories</Accordion.Header>
                 <Accordion.Body>
@@ -56,12 +56,6 @@ const WikimediaView = ({ endpoint, title }) => {
                 <Accordion.Header>Infobox</Accordion.Header>
                 <Accordion.Body>
                     <Infobox endpoint={endpoint} title={title} />
-                </Accordion.Body>
-            </Accordion.Item>
-            <Accordion.Item eventKey="2">
-                <Accordion.Header>Resolved Wikidata</Accordion.Header>
-                <Accordion.Body>
-                    <ResolvedWikidata endpoint={endpoint} title={title} />
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>
