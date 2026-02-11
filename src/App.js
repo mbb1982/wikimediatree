@@ -133,6 +133,8 @@ const WikidataPage = ({wditem}) => {
     const { loading: comloading, error: comerror, data: compageid } = useFetch(`/api/wikidata/wikimedia/commons.wikimedia.org/${wditem}`, {}, [wditem]);
 
     return (
+      <>
+        <h1>{enpageid ? enpageid.replace(/_/g, ' ') : "No English Wikipedia page found."}</h1>
         <Accordion defaultActiveKey={[]} alwaysOpen>
             <Accordion.Item eventKey="0">
                 <Accordion.Header>Wikidata</Accordion.Header>
@@ -153,6 +155,7 @@ const WikidataPage = ({wditem}) => {
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>
+      </>
     );
 }
 
@@ -168,6 +171,19 @@ const WikidataTop = () => {
   return <WikidataPage wditem={wditem} />;
 }
 
+const CRSTop = () => {
+  const { crs } = useParams();
+  const { loading, error, data } = useFetch(`/api/wikidata/property/P4755/${crs}`, {}, [crs]);
+  
+  if (loading) return <div>Loading CRS data...</div>;
+  if (error) return <div>Error loading CRS data: {error.message}</div>;
+  return (
+    <div>
+      {data ? <WikidataPage wditem={data} /> : <div>No Wikidata item found for CRS {crs}.</div>}
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
@@ -176,6 +192,7 @@ function App() {
           <Route index element={<WMTree />} />
           <Route path="wikimedia/:endpoint/:title" element={<WikimediaTop />} />
           <Route path="wikidata/:wditem" element={<WikidataTop />} />
+          <Route path="crs/:crs" element={<CRSTop />} />
         </Route>
       </Routes>
     </Router>
