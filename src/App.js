@@ -107,6 +107,32 @@ function WMTree() {
   );
 }
 
+const WikimediaTree = () => {
+  const {endpoint,title: category} = useParams();
+  const [currentCategory, setCurrentCategory] = React.useState(category);
+
+  const handleSelect = (node) => {
+    setCurrentCategory(node.key)
+  }
+  
+  return (
+    <Container data-bs-theme="dark" fluid>
+      <Row>
+        <Col xs={4} className="scrollable-column">
+          <NewTree
+            topLevel={category}
+            endpoint={endpoint}
+            onSelect={handleSelect}
+          />
+        </Col>
+        <Col xs={8} className="scrollable-column">
+          <WikimediaPage endpoint={endpoint} title={`Category:${currentCategory}`} />
+        </Col>
+      </Row>
+    </Container>
+  );
+}
+
 const WikimediaPage = ({ endpoint, title }) => {
     const { loading: wdloading, error: wderror, data: wditemid } = useFetch(`/api/wikidata/resolve/${endpoint}/${title}`, {}, [endpoint, title]);
      
@@ -190,6 +216,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<WMTree />} />
+          <Route path="wikimedia/tree/:endpoint/:title" element={<WikimediaTree />} />
           <Route path="wikimedia/:endpoint/:title" element={<WikimediaTop />} />
           <Route path="wikidata/:wditem" element={<WikidataTop />} />
           <Route path="crs/:crs" element={<CRSTop />} />
