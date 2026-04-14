@@ -49,16 +49,16 @@ const removeChildren = (treeData, key) => {
   });
 }  
 
-const fetchChildren = (key) => {
+const fetchChildren = (key, endpoint) => {
   return new Promise((resolve) => {
-    fetch("/api/get_children/commons.wikimedia.org/"+key)
+    fetch("/api/get_children/"+endpoint+"/"+key)
     .then(resp => resp.json())
     .then(data => resolve(data))
     
   });
 }
 
-const NewTree = ( {topLevel,onSelect})=>
+const NewTree = ( {topLevel, endpoint='commons.wikimedia.org', onSelect})=>
 {
   console.log("NewTree with topLevel:", topLevel);
     const [treeData, setTreeData] = useState([{key:topLevel,title:topLevel}]);
@@ -75,7 +75,7 @@ const NewTree = ( {topLevel,onSelect})=>
     const onClick = (event,item) => {
       onSelect(item);
       event.stopPropagation();
-      fetchChildren(item.key).then(children => {
+      fetchChildren(item.key, endpoint).then(children => {
         setTreeData(treeData => updateTreeData(treeData, item.key, children));
       });
     }
