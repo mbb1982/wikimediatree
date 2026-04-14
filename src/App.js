@@ -57,7 +57,8 @@ function WMTree() {
   const [currentCategory, setCurrentCategory] = React.useState('Aircraft_at_London_Heathrow_Airport');
 
   const handleSelect = (node) => {
-    setCurrentCategory(node.key)
+    console.log("Selected node:", node);
+    setCurrentCategory(node.key);
   }
 
   // Add some CSS for scrollable columns
@@ -112,7 +113,7 @@ const WikimediaTree = () => {
   const [currentCategory, setCurrentCategory] = React.useState(category);
 
   const handleSelect = (node) => {
-    setCurrentCategory(node.key)
+    setCurrentCategory(node.key.replace(/ /g, '_'));
   }
   
   return (
@@ -126,7 +127,7 @@ const WikimediaTree = () => {
           />
         </Col>
         <Col xs={8} className="scrollable-column">
-          <WikimediaPage endpoint={endpoint} title={`Category:${currentCategory}`} />
+          <WikimediaPage endpoint={endpoint} title={`Category%3A${currentCategory}`} />
         </Col>
       </Row>
     </Container>
