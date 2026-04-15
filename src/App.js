@@ -128,6 +128,11 @@ const WikimediaTree = () => {
       </style>
     <Container data-bs-theme="dark" fluid>
       <Row>
+        <Col>
+          <h2 className="text-primary mb-3">Current Category: {currentCategory.replace(/_/g, ' ')}</h2>
+        </Col>
+      </Row>
+      <Row>
         <Col xs={4} className="scrollable-column">
           <NewTree
             topLevel={category}
