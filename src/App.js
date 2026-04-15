@@ -117,6 +117,15 @@ const WikimediaTree = () => {
   }
   
   return (
+    <>
+    <style>
+        {`
+          .scrollable-column {
+            max-height: 99vh;
+            overflow-y: auto;
+          }
+        `}
+      </style>
     <Container data-bs-theme="dark" fluid>
       <Row>
         <Col xs={4} className="scrollable-column">
@@ -131,6 +140,7 @@ const WikimediaTree = () => {
         </Col>
       </Row>
     </Container>
+    </>
   );
 }
 
