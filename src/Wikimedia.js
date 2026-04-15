@@ -43,6 +43,26 @@ const ResolvedWikidata = ({endpoint, title}) => {
     )
 }
 
+const Images = ({endpoint,title}) =>
+{
+   if(!endpoint) endpoint="commons.wikimedia.org";  
+   const {loading, error, data} = useFetch(`/api/mediawiki/get_files/${endpoint}/${title}`, {}, [endpoint, title]);
+
+    if (loading) return <div>Loading images...</div>;
+    if (error) return <div>Error loading images: {error.message}</div>;
+    
+   return (
+      <div>
+        {data.map((item, index) => (
+            <span key={index}>
+            <img src={item.url} alt={item.title} style={{maxWidth: '200px'}}/>
+            </span>
+        ))}
+      </div>
+    );
+}
+
+
 const WikimediaView = ({ endpoint, title }) => {
     return (
         <Accordion defaultActiveKey={[]} alwaysOpen>
@@ -56,6 +76,12 @@ const WikimediaView = ({ endpoint, title }) => {
                 <Accordion.Header>Infobox</Accordion.Header>
                 <Accordion.Body>
                     <Infobox endpoint={endpoint} title={title} />
+                </Accordion.Body>
+            </Accordion.Item>
+            <Accordion.Item eventKey="2">
+                <Accordion.Header>Images</Accordion.Header>
+                <Accordion.Body>
+                    <Images endpoint={endpoint} title={title} />
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>
