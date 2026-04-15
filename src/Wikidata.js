@@ -1,6 +1,7 @@
 import {useFetch } from "use-http";
 import Table from 'react-bootstrap/Table';
 import { Accordion } from "react-bootstrap";
+import  FlickrImages  from "./Flickr";
 
 const WikidataRelated = ({wditem})   => {
     const { loading, error, data } = useFetch(`/api/wikidata/related/${wditem}`, {}, [wditem]);
@@ -182,6 +183,12 @@ const wikidataView = ({wditem}) => {
                 <Accordion.Header>Media</Accordion.Header>
                 <Accordion.Body>
                     <WikidataMedia wditem={wditem} />
+                </Accordion.Body>
+            </Accordion.Item>
+                <Accordion.Item eventKey="5">
+                <Accordion.Header>Flickr Images</Accordion.Header>
+                <Accordion.Body>
+                    <FlickrImages tag={`wikidata:item=${wditem}`} />
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>

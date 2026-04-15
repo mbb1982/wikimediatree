@@ -1,5 +1,6 @@
 import azure.functions as func
 import fastapi
+import flickrapi
 from httpx_cache import AsyncClient 
 from dataaccess.common import USER_AGENT
 from dataaccess.mediawiki import router as mediawiki_router
@@ -40,6 +41,14 @@ async def get_files(wiki: str, category: str):
         if 'imageinfo' in x and len(x['imageinfo'])>0:
             to_return.append({"title":x['title'], "url":x['imageinfo'][0]['url']})
     return to_return
+
+@fast_app.get("/api/flickr/by_tag/{tag}")
+async def get_flickr_by_tag(tag: str):
+    api_key = "5a18587b862f40ef157fb411c6e65a4d"
+    api_secret = "ab17e0c812597839"
+    flickr = flickrapi.FlickrAPI(api_key, api_secret, format='parsed-json')
+    photos = flickr.photos.search(tags=tag, per_page=10, extras='url_m')
+    return [{"title": photo['title'], "url": photo['url_m']} for photo in photos['photos']['photo']]
 
 app = func.AsgiFunctionApp(app=fast_app,
                            http_auth_level=func.AuthLevel.FUNCTION)

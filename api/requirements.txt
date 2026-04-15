@@ -6,3 +6,4 @@ azure-functions
 fastapi
 httpx-cache
 httpx==0.24.1
+flickrapi
