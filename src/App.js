@@ -136,13 +136,12 @@ const WikimediaTree = () => {
           />
         </Col>
         <Col xs={8} className="scrollable-column">
-          <WikimediaPage endpoint={endpoint} title={`Category%3A${currentCategory}`} />
+          <WikimediaPage endpoint={endpoint} title={`Category:${currentCategory}`} />
         </Col>
       </Row>
     </Container>
     </>
-  );
-}
+  );}
 
 const WikimediaPage = ({ endpoint, title }) => {
     const { loading: wdloading, error: wderror, data: wditemid } = useFetch(`/api/wikidata/resolve/${endpoint}/${title}`, {}, [endpoint, title]);
