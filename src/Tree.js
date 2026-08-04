@@ -1,22 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { CloseButton } from 'react-bootstrap';
 import ListGroup from 'react-bootstrap/ListGroup';
 import ListGroupItem from 'react-bootstrap/ListGroupItem';
 
-const TreeList = ( {treeData,onClick,onClose})=>
+const plainButtonStyle = { background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer' };
+
+const TreeList = ( {treeData,onClick,onToggle})=>
 {
   console.log("TreeList");
   console.log(treeData);
   return (
     <ListGroup>
       {treeData.map((item) => (
-        <ListGroupItem key={item.key} eventKey={item.key} onClick={(event) => onClick(event, item)}>
-          {item.title}
+        <ListGroupItem key={item.key} eventKey={item.key}>
+          <button
+            type="button"
+            onClick={(event) => onToggle(event, item)}
+            style={{ ...plainButtonStyle, marginRight: '6px', display: 'inline-block', width: '1em' }}
+          >
+            {item.children ? '\u25bc' : '\u25b6'}
+          </button>
+          <button
+            type="button"
+            onClick={(event) => onClick(event, item)}
+            style={plainButtonStyle}
+          >
+            {item.title}
+          </button>
           {item.children && item.children.length > 0 && (
-            <>
-              <CloseButton onClick={(event) => onClose(event, item)} />
-              <TreeList treeData={item.children} onClick={onClick} onClose={onClose} />
-            </>
+            <TreeList treeData={item.children} onClick={onClick} onToggle={onToggle} />
           )}
         </ListGroupItem>
       ))}
@@ -75,18 +86,21 @@ const NewTree = ( {topLevel, endpoint='commons.wikimedia.org', onSelect})=>
     const onClick = (event,item) => {
       onSelect(item);
       event.stopPropagation();
-      fetchChildren(item.key, endpoint).then(children => {
-        setTreeData(treeData => updateTreeData(treeData, item.key, children));
-      });
     }
 
-    const onClose = (event,item) => {
+    const onToggle = (event,item) => {
       event.stopPropagation();
-      setTreeData(treeData => removeChildren(treeData, item.key));
+      if (item.children) {
+        setTreeData(treeData => removeChildren(treeData, item.key));
+      } else {
+        fetchChildren(item.key, endpoint).then(children => {
+          setTreeData(treeData => updateTreeData(treeData, item.key, children));
+        });
+      }
     }
 
     return (
-        <TreeList treeData={treeData} onClick={onClick} onClose={onClose}/>
+        <TreeList treeData={treeData} onClick={onClick} onToggle={onToggle}/>
     );
 }
 
