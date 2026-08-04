@@ -153,7 +153,7 @@ const WikimediaPage = ({ endpoint, title }) => {
     const { loading: wdloading, error: wderror, data: wditemid } = useFetch(`/api/wikidata/resolve/${endpoint}/${title}`, {}, [endpoint, title]);
     const { loading: enloading, error: enerror, data: enpageid } = useFetch(endpoint !== 'en.wikipedia.org' ? `/api/wikidata/wikimedia/en.wikipedia.org/${wditemid}` : null, {}, [wditemid, endpoint]);
     const { loading: comloading, error: comerror, data: compageid } = useFetch(endpoint !== 'commons.wikimedia.org' ? `/api/wikidata/wikimedia/commons.wikimedia.org/${wditemid}` : null, {}, [wditemid, endpoint]);
-    const { activeKey, onSelect, isOpened } = useLazyAccordion(["0","1"]);
+    const { activeKey, onSelect, isOpened } = useLazyAccordion(["0"]);
     return (
     <Accordion activeKey={activeKey} onSelect={onSelect} alwaysOpen>
         <Accordion.Item eventKey="0">
