@@ -10,9 +10,9 @@ const FlickrImages = ({tag}) =>
    return (
       <div>
         {data.map((item, index) => (
-          <div key={index}>
+          <span key={index}>
             <img src={item.url} alt={item.title} />
-          </div>
+          </span>
         ))}
       </div>
    );

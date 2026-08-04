@@ -150,7 +150,8 @@ const WikimediaTree = () => {
 
 const WikimediaPage = ({ endpoint, title }) => {
     const { loading: wdloading, error: wderror, data: wditemid } = useFetch(`/api/wikidata/resolve/${endpoint}/${title}`, {}, [endpoint, title]);
-     
+    const { loading: enloading, error: enerror, data: enpageid } = useFetch(endpoint !== 'en.wikipedia.org' ? `/api/wikidata/wikimedia/en.wikipedia.org/${wditemid}` : null, {}, [wditemid, endpoint]);
+    const { loading: comloading, error: comerror, data: compageid } = useFetch(endpoint !== 'commons.wikimedia.org' ? `/api/wikidata/wikimedia/commons.wikimedia.org/${wditemid}` : null, {}, [wditemid, endpoint]);
     return (
     <Accordion defaultActiveKey={["0","1"]} alwaysOpen>
         <Accordion.Item eventKey="0">
@@ -165,9 +166,22 @@ const WikimediaPage = ({ endpoint, title }) => {
                 { wditemid ? <WikidataView wditem={wditemid} /> : (wdloading ? <div>Loading Wikidata...</div> : (wderror ? <div>Error loading Wikidata: {wderror.message}</div> : <div>No Wikidata item found. {wditemid}</div>)) }
             </Accordion.Body>
         </Accordion.Item>
+          { endpoint !== 'en.wikipedia.org' && <Accordion.Item eventKey="2">
+            <Accordion.Header>English Wikipedia</Accordion.Header>
+            <Accordion.Body>
+                { enpageid ? <WikimediaView endpoint="en.wikipedia.org" title={enpageid} /> : (enloading ? <div>Loading English Wikipedia...</div> : (enerror ? <div>Error loading English Wikipedia: {enerror.message}</div> : <div>No English Wikipedia page found.</div>)) }
+            </Accordion.Body>
+        </Accordion.Item>}
+        { endpoint !== 'commons.wikimedia.org' && <Accordion.Item eventKey="3">
+            <Accordion.Header>Commons</Accordion.Header>
+            <Accordion.Body>
+                { compageid ? <WikimediaView endpoint="commons.wikimedia.org" title={compageid} /> : (comloading ? <div>Loading Commons...</div> : (comerror ? <div>Error loading Commons: {comerror.message}</div> : <div>No Commons page found.</div>)) }
+            </Accordion.Body>
+        </Accordion.Item>}
     </Accordion>
-    );
-}
+
+  );
+};
 
 const WikidataPage = ({wditem}) => {
     const { loading: enloading, error: enerror, data: enpageid } = useFetch(`/api/wikidata/wikimedia/en.wikipedia.org/${wditem}`, {}, [wditem]);
