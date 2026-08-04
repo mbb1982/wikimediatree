@@ -2,6 +2,7 @@ import {useFetch } from "use-http";
 import Table from 'react-bootstrap/Table';
 import { Accordion } from "react-bootstrap";
 import  FlickrImages  from "./Flickr";
+import { useLazyAccordion } from "./useLazyAccordion";
 
 const WikidataRelated = ({wditem})   => {
     const { loading, error, data } = useFetch(`/api/wikidata/related/${wditem}`, {}, [wditem]);
@@ -152,47 +153,48 @@ const WikidataMedia = ({wditem}) => {
     )
 }
 
-const wikidataView = ({wditem}) => {
+const WikidataView = ({wditem}) => {
+    const { activeKey, onSelect, isOpened } = useLazyAccordion([]);
     return (
-        <Accordion defaultActiveKey={[]} alwaysOpen>
+        <Accordion activeKey={activeKey} onSelect={onSelect} alwaysOpen>
             <Accordion.Item eventKey="0">
                 <Accordion.Header>Related Properties</Accordion.Header>
                 <Accordion.Body>
-                    <WikidataRelated wditem={wditem} />
+                    {isOpened("0") && <WikidataRelated wditem={wditem} />}
                 </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="1">
                 <Accordion.Header>Incoming Properties</Accordion.Header>
                 <Accordion.Body>
-                    <WikidataIncoming wditem={wditem} />
+                    {isOpened("1") && <WikidataIncoming wditem={wditem} />}
                 </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="2">
                 <Accordion.Header>Identifiers</Accordion.Header>
                 <Accordion.Body>
-                    <WikidataIdentifiers wditem={wditem} />
+                    {isOpened("2") && <WikidataIdentifiers wditem={wditem} />}
                 </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="3">
                 <Accordion.Header>Qualifiers</Accordion.Header>
                 <Accordion.Body>
-                    <WikidataQualifiers wditem={wditem} />
+                    {isOpened("3") && <WikidataQualifiers wditem={wditem} />}
                 </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="4">
                 <Accordion.Header>Media</Accordion.Header>
                 <Accordion.Body>
-                    <WikidataMedia wditem={wditem} />
+                    {isOpened("4") && <WikidataMedia wditem={wditem} />}
                 </Accordion.Body>
             </Accordion.Item>
                 <Accordion.Item eventKey="5">
                 <Accordion.Header>Flickr Images</Accordion.Header>
                 <Accordion.Body>
-                    <FlickrImages tag={`wikidata:item=${wditem}`} />
+                    {isOpened("5") && <FlickrImages tag={`wikidata:item=${wditem}`} />}
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>
     );
 }
 
-export default wikidataView;
+export default WikidataView;

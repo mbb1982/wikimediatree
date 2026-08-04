@@ -12,6 +12,7 @@ import WikimediaView from './Wikimedia';
 import WikidataView from './Wikidata';
 import { useParams } from 'react-router-dom';
 import { useFetch } from 'use-http';
+import { useLazyAccordion } from './useLazyAccordion';
 
 
 const Images = ({wiki,category}) =>
@@ -152,30 +153,31 @@ const WikimediaPage = ({ endpoint, title }) => {
     const { loading: wdloading, error: wderror, data: wditemid } = useFetch(`/api/wikidata/resolve/${endpoint}/${title}`, {}, [endpoint, title]);
     const { loading: enloading, error: enerror, data: enpageid } = useFetch(endpoint !== 'en.wikipedia.org' ? `/api/wikidata/wikimedia/en.wikipedia.org/${wditemid}` : null, {}, [wditemid, endpoint]);
     const { loading: comloading, error: comerror, data: compageid } = useFetch(endpoint !== 'commons.wikimedia.org' ? `/api/wikidata/wikimedia/commons.wikimedia.org/${wditemid}` : null, {}, [wditemid, endpoint]);
+    const { activeKey, onSelect, isOpened } = useLazyAccordion(["0","1"]);
     return (
-    <Accordion defaultActiveKey={["0","1"]} alwaysOpen>
+    <Accordion activeKey={activeKey} onSelect={onSelect} alwaysOpen>
         <Accordion.Item eventKey="0">
             <Accordion.Header>Wikimedia Data</Accordion.Header>
             <Accordion.Body>
-                <WikimediaView endpoint={endpoint} title={title} />
+                {isOpened("0") && <WikimediaView endpoint={endpoint} title={title} />}
             </Accordion.Body>
         </Accordion.Item>
         <Accordion.Item eventKey="1">
             <Accordion.Header>Wikidata</Accordion.Header>
             <Accordion.Body>
-                { wditemid ? <WikidataView wditem={wditemid} /> : (wdloading ? <div>Loading Wikidata...</div> : (wderror ? <div>Error loading Wikidata: {wderror.message}</div> : <div>No Wikidata item found. {wditemid}</div>)) }
+                { isOpened("1") && (wditemid ? <WikidataView wditem={wditemid} /> : (wdloading ? <div>Loading Wikidata...</div> : (wderror ? <div>Error loading Wikidata: {wderror.message}</div> : <div>No Wikidata item found. {wditemid}</div>))) }
             </Accordion.Body>
         </Accordion.Item>
           { endpoint !== 'en.wikipedia.org' && <Accordion.Item eventKey="2">
             <Accordion.Header>English Wikipedia</Accordion.Header>
             <Accordion.Body>
-                { enpageid ? <WikimediaView endpoint="en.wikipedia.org" title={enpageid} /> : (enloading ? <div>Loading English Wikipedia...</div> : (enerror ? <div>Error loading English Wikipedia: {enerror.message}</div> : <div>No English Wikipedia page found.</div>)) }
+                { isOpened("2") && (enpageid ? <WikimediaView endpoint="en.wikipedia.org" title={enpageid} /> : (enloading ? <div>Loading English Wikipedia...</div> : (enerror ? <div>Error loading English Wikipedia: {enerror.message}</div> : <div>No English Wikipedia page found.</div>))) }
             </Accordion.Body>
         </Accordion.Item>}
         { endpoint !== 'commons.wikimedia.org' && <Accordion.Item eventKey="3">
             <Accordion.Header>Commons</Accordion.Header>
             <Accordion.Body>
-                { compageid ? <WikimediaView endpoint="commons.wikimedia.org" title={compageid} /> : (comloading ? <div>Loading Commons...</div> : (comerror ? <div>Error loading Commons: {comerror.message}</div> : <div>No Commons page found.</div>)) }
+                { isOpened("3") && (compageid ? <WikimediaView endpoint="commons.wikimedia.org" title={compageid} /> : (comloading ? <div>Loading Commons...</div> : (comerror ? <div>Error loading Commons: {comerror.message}</div> : <div>No Commons page found.</div>))) }
             </Accordion.Body>
         </Accordion.Item>}
     </Accordion>
@@ -186,27 +188,28 @@ const WikimediaPage = ({ endpoint, title }) => {
 const WikidataPage = ({wditem}) => {
     const { loading: enloading, error: enerror, data: enpageid } = useFetch(`/api/wikidata/wikimedia/en.wikipedia.org/${wditem}`, {}, [wditem]);
     const { loading: comloading, error: comerror, data: compageid } = useFetch(`/api/wikidata/wikimedia/commons.wikimedia.org/${wditem}`, {}, [wditem]);
+    const { activeKey, onSelect, isOpened } = useLazyAccordion([]);
 
     return (
       <>
         <h1>{enpageid ? enpageid.replace(/_/g, ' ') : "No English Wikipedia page found."}</h1>
-        <Accordion defaultActiveKey={[]} alwaysOpen>
+        <Accordion activeKey={activeKey} onSelect={onSelect} alwaysOpen>
             <Accordion.Item eventKey="0">
                 <Accordion.Header>Wikidata</Accordion.Header>
                 <Accordion.Body>
-                    <WikidataView wditem={wditem} />
+                    {isOpened("0") && <WikidataView wditem={wditem} />}
                 </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="1">
                 <Accordion.Header>English Wikipedia</Accordion.Header>
                 <Accordion.Body>
-                    { enpageid ? <WikimediaView endpoint="en.wikipedia.org" title={enpageid} /> : (enloading ? <div>Loading English Wikipedia...</div> : (enerror ? <div>Error loading English Wikipedia: {enerror.message}</div> : <div>No English Wikipedia page found.</div>)) }
+                    { isOpened("1") && (enpageid ? <WikimediaView endpoint="en.wikipedia.org" title={enpageid} /> : (enloading ? <div>Loading English Wikipedia...</div> : (enerror ? <div>Error loading English Wikipedia: {enerror.message}</div> : <div>No English Wikipedia page found.</div>))) }
                 </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="2">
                 <Accordion.Header>Commons</Accordion.Header>
                 <Accordion.Body>
-                    { compageid ? <WikimediaView endpoint="commons.wikimedia.org" title={compageid} /> : (comloading ? <div>Loading Commons...</div> : (comerror ? <div>Error loading Commons: {comerror.message}</div> : <div>No Commons page found.</div>)) }
+                    { isOpened("2") && (compageid ? <WikimediaView endpoint="commons.wikimedia.org" title={compageid} /> : (comloading ? <div>Loading Commons...</div> : (comerror ? <div>Error loading Commons: {comerror.message}</div> : <div>No Commons page found.</div>))) }
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>

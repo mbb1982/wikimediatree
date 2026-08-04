@@ -1,6 +1,7 @@
 import { useFetch } from 'use-http';
 import { ListGroup, Accordion } from 'react-bootstrap';
 import RenderJson from './RenderJson';
+import { useLazyAccordion } from './useLazyAccordion';
 
 const Categories = ({ endpoint, title }) => {  
     console.log("Fetching categories for:", endpoint, title);
@@ -64,24 +65,25 @@ const Images = ({endpoint,title}) =>
 
 
 const WikimediaView = ({ endpoint, title }) => {
+    const { activeKey, onSelect, isOpened } = useLazyAccordion([]);
     return (
-        <Accordion defaultActiveKey={[]} alwaysOpen>
+        <Accordion activeKey={activeKey} onSelect={onSelect} alwaysOpen>
             <Accordion.Item eventKey="0">
                 <Accordion.Header>Categories</Accordion.Header>
                 <Accordion.Body>
-                    <Categories endpoint={endpoint} title={title} />
+                    {isOpened("0") && <Categories endpoint={endpoint} title={title} />}
                 </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="1">
                 <Accordion.Header>Infobox</Accordion.Header>
                 <Accordion.Body>
-                    <Infobox endpoint={endpoint} title={title} />
+                    {isOpened("1") && <Infobox endpoint={endpoint} title={title} />}
                 </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="2">
                 <Accordion.Header>Images</Accordion.Header>
                 <Accordion.Body>
-                    <Images endpoint={endpoint} title={title} />
+                    {isOpened("2") && <Images endpoint={endpoint} title={title} />}
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>
