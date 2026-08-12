@@ -13,7 +13,9 @@ import WikidataView from './Wikidata';
 import { useParams } from 'react-router-dom';
 import { useFetch } from 'use-http';
 import { useLazyAccordion } from './useLazyAccordion';
+import useSWRImmutable from 'swr/immutable';
 
+const fetcher = (...args) => fetch(...args).then(res => res.json());
 
 const Images = ({wiki,category}) =>
 {
@@ -149,11 +151,29 @@ const WikimediaTree = () => {
     </>
   );}
 
+const WikidataInWikimedia = ({ endpoint, title }) => {
+    const {data, error, isLoading} = useSWRImmutable(`/api/wikidata/resolve/${endpoint}/${title}`,fetcher);
+    if (isLoading) return <div>Loading Wikidata item...</div>;
+    if (error) return <div>Error loading Wikidata item: {error.message}</div>;
+    if (!data) return <div>No Wikidata item found.</div>;
+    return <WikidataView wditem={data} />;
+}
+
+const WikimediaInWikimedia = ({ originalEndpoint, title, targetEndpoint }) => {
+    const {data: wditem, error: wderror, isLoading: wdloading} = useSWRImmutable(`/api/wikidata/resolve/${originalEndpoint}/${title}`,fetcher);
+    const {data: targetTitle, error: targetError, isLoading: targetLoading} = useSWRImmutable(() => wditem ? `/api/wikidata/wikimedia/${targetEndpoint}/` + wditem : null, fetcher);
+
+    if (wdloading || targetLoading) return <div>Loading...</div>;
+    if (wderror) return <div>Error loading Wikidata item: {wderror.message}</div>;
+    if (targetError) return <div>Error loading target Wikimedia page: {targetError.message}</div>;
+    if (!wditem) return <div>No Wikidata item found.</div>;
+    if (!targetTitle) return <div>No target Wikimedia page found.</div>;
+
+    return <WikimediaView endpoint={targetEndpoint} title={targetTitle} />;
+}
+
 const WikimediaPage = ({ endpoint, title }) => {
     const ignore_wikidata = title.search(/\bat\b.*(Airport|Station)/i) !== -1;
-    const { loading: wdloading, error: wderror, data: wditemid } = useFetch(ignore_wikidata ? null : `/api/wikidata/resolve/${endpoint}/${title}`, {}, [endpoint, title]);
-    const { loading: enloading, error: enerror, data: enpageid } = useFetch((endpoint !== 'en.wikipedia.org' && wditemid) ? `/api/wikidata/wikimedia/en.wikipedia.org/${wditemid}` : null, {}, [wditemid, endpoint]);
-    const { loading: comloading, error: comerror, data: compageid } = useFetch((endpoint !== 'commons.wikimedia.org' && wditemid) ? `/api/wikidata/wikimedia/commons.wikimedia.org/${wditemid}` : null, {}, [wditemid, endpoint]);
     const { activeKey, onSelect, isOpened } = useLazyAccordion(["0"]);
     return (
     <Accordion activeKey={activeKey} onSelect={onSelect} alwaysOpen>
@@ -166,19 +186,19 @@ const WikimediaPage = ({ endpoint, title }) => {
         <Accordion.Item eventKey="1">
             <Accordion.Header>Wikidata</Accordion.Header>
             <Accordion.Body>
-                { isOpened("1") && (wditemid ? <WikidataView wditem={wditemid} /> : (wdloading ? <div>Loading Wikidata...</div> : (wderror ? <div>Error loading Wikidata: {wderror.message}</div> : <div>No Wikidata item found. {wditemid}</div>))) }
+                { isOpened("1") && !ignore_wikidata && <WikidataInWikimedia endpoint={endpoint} title={title} /> }
             </Accordion.Body>
         </Accordion.Item>
           { endpoint !== 'en.wikipedia.org' && <Accordion.Item eventKey="2">
             <Accordion.Header>English Wikipedia</Accordion.Header>
             <Accordion.Body>
-                { isOpened("2") && (enpageid ? <WikimediaView endpoint="en.wikipedia.org" title={enpageid} /> : (enloading ? <div>Loading English Wikipedia...</div> : (enerror ? <div>Error loading English Wikipedia: {enerror.message}</div> : <div>No English Wikipedia page found.</div>))) }
+                { isOpened("2") && <WikimediaInWikimedia originalEndpoint={endpoint} title={title} targetEndpoint="en.wikipedia.org" /> }
             </Accordion.Body>
         </Accordion.Item>}
         { endpoint !== 'commons.wikimedia.org' && <Accordion.Item eventKey="3">
             <Accordion.Header>Commons</Accordion.Header>
             <Accordion.Body>
-                { isOpened("3") && (compageid ? <WikimediaView endpoint="commons.wikimedia.org" title={compageid} /> : (comloading ? <div>Loading Commons...</div> : (comerror ? <div>Error loading Commons: {comerror.message}</div> : <div>No Commons page found.</div>))) }
+                { isOpened("3") && <WikimediaInWikimedia originalEndpoint={endpoint} title={title} targetEndpoint="commons.wikimedia.org" /> }
             </Accordion.Body>
         </Accordion.Item>}
     </Accordion>
@@ -186,14 +206,21 @@ const WikimediaPage = ({ endpoint, title }) => {
   );
 };
 
+const WikimediaInWikidata = ({ wditem, endpoint }) => {
+    const {data, error, isLoading} = useSWRImmutable(`/api/wikidata/wikimedia/${endpoint}/${wditem}`, fetcher);
+    if (isLoading) return <div>Loading Wikimedia page...</div>;
+    if (error) return <div>Error loading Wikimedia page: {error.message}</div>;
+    if (!data) return <div>No Wikimedia page found for this Wikidata item.</div>;
+    return <WikimediaView endpoint={endpoint} title={data} />;
+}
+
+
 const WikidataPage = ({wditem}) => {
-    const { loading: enloading, error: enerror, data: enpageid } = useFetch(`/api/wikidata/wikimedia/en.wikipedia.org/${wditem}`, {}, [wditem]);
-    const { loading: comloading, error: comerror, data: compageid } = useFetch(`/api/wikidata/wikimedia/commons.wikimedia.org/${wditem}`, {}, [wditem]);
     const { activeKey, onSelect, isOpened } = useLazyAccordion([]);
 
     return (
       <>
-        <h1>{enpageid ? enpageid.replace(/_/g, ' ') : "No English Wikipedia page found."}</h1>
+        <h1>{wditem}</h1>
         <Accordion activeKey={activeKey} onSelect={onSelect} alwaysOpen>
             <Accordion.Item eventKey="0">
                 <Accordion.Header>Wikidata</Accordion.Header>
@@ -204,13 +231,13 @@ const WikidataPage = ({wditem}) => {
             <Accordion.Item eventKey="1">
                 <Accordion.Header>English Wikipedia</Accordion.Header>
                 <Accordion.Body>
-                    { isOpened("1") && (enpageid ? <WikimediaView endpoint="en.wikipedia.org" title={enpageid} /> : (enloading ? <div>Loading English Wikipedia...</div> : (enerror ? <div>Error loading English Wikipedia: {enerror.message}</div> : <div>No English Wikipedia page found.</div>))) }
+                    { isOpened("1") && <WikimediaInWikidata wditem={wditem} endpoint="en.wikipedia.org" /> }
                 </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="2">
                 <Accordion.Header>Commons</Accordion.Header>
                 <Accordion.Body>
-                    { isOpened("2") && (compageid ? <WikimediaView endpoint="commons.wikimedia.org" title={compageid} /> : (comloading ? <div>Loading Commons...</div> : (comerror ? <div>Error loading Commons: {comerror.message}</div> : <div>No Commons page found.</div>))) }
+                    { isOpened("2") && <WikimediaInWikidata wditem={wditem} endpoint="commons.wikimedia.org" /> }
                 </Accordion.Body>
             </Accordion.Item>
         </Accordion>
