@@ -173,7 +173,7 @@ const WikimediaInWikimedia = ({ originalEndpoint, title, targetEndpoint }) => {
 }
 
 const WikimediaPage = ({ endpoint, title }) => {
-    const ignore_wikidata = title.search(/\bat\b.*(Airport|Station)/i) !== -1;
+    const ignore_wikidata = title.search(/_at_.*(Airport|Station)/i) !== -1;
     const { activeKey, onSelect, isOpened } = useLazyAccordion(["0"]);
     return (
     <Accordion activeKey={activeKey} onSelect={onSelect} alwaysOpen>
@@ -183,19 +183,19 @@ const WikimediaPage = ({ endpoint, title }) => {
                 {isOpened("0") && <WikimediaView endpoint={endpoint} title={title} />}
             </Accordion.Body>
         </Accordion.Item>
-        <Accordion.Item eventKey="1">
+       { !ignore_wikidata && <Accordion.Item eventKey="1">
             <Accordion.Header>Wikidata</Accordion.Header>
             <Accordion.Body>
                 { isOpened("1") && !ignore_wikidata && <WikidataInWikimedia endpoint={endpoint} title={title} /> }
             </Accordion.Body>
-        </Accordion.Item>
-          { endpoint !== 'en.wikipedia.org' && <Accordion.Item eventKey="2">
+        </Accordion.Item> }
+          { endpoint !== 'en.wikipedia.org' && !ignore_wikidata && <Accordion.Item eventKey="2">
             <Accordion.Header>English Wikipedia</Accordion.Header>
             <Accordion.Body>
                 { isOpened("2") && <WikimediaInWikimedia originalEndpoint={endpoint} title={title} targetEndpoint="en.wikipedia.org" /> }
             </Accordion.Body>
         </Accordion.Item>}
-        { endpoint !== 'commons.wikimedia.org' && <Accordion.Item eventKey="3">
+        { endpoint !== 'commons.wikimedia.org' && ignore_wikidata && <Accordion.Item eventKey="3">
             <Accordion.Header>Commons</Accordion.Header>
             <Accordion.Body>
                 { isOpened("3") && <WikimediaInWikimedia originalEndpoint={endpoint} title={title} targetEndpoint="commons.wikimedia.org" /> }
