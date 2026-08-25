@@ -111,8 +111,12 @@ function WMTree() {
   );
 }
 
-const WikimediaTree = () => {
-  const {endpoint,title: category} = useParams();
+const WikimediaTreeTop = () => {
+  const { endpoint, title } = useParams();
+  return <WikimediaTree endpoint={endpoint} category={title} />;
+}
+
+const WikimediaTree = ({endpoint, category}) => {
   const [currentCategory, setCurrentCategory] = React.useState(category);
 
   const handleSelect = (node) => {
@@ -270,16 +274,42 @@ const CRSTop = () => {
   );
 }
 
+const CodeTop = () => {
+  const { scheme, code } = useParams();
+  const { loading, error, data } = useSWRImmutable(`/api/code/${scheme}/${code}/wd`, fetcher);
+  if (loading) return <div>Loading code mapping...</div>;
+  if (error) return <div>Error loading code mapping: {error.message}</div>;
+  return (
+    <div>
+      {data ? <WikidataPage wditem={data} /> : <div>No Wikidata item found for {scheme} code {code}.</div>}
+    </div>
+  );
+}
+
+const CommonsCodeTree = () => {
+  const { scheme, code } = useParams();
+  const { loading, error, data } = useSWRImmutable(`/api/code/${scheme}/${code}/mw/commons.wikimedia.org`, fetcher);
+  if (loading) return <div>Loading Commons code tree...</div>;
+  if (error) return <div>Error loading Commons code tree: {error.message}</div>;
+  return (
+    <div>
+      {data ? <WikimediaTree endpoint="commons.wikimedia.org" category={data} /> : <div>No Commons category found for {scheme} code {code}.</div>}
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<WMTree />} />
-          <Route path="wikimedia/tree/:endpoint/:title" element={<WikimediaTree />} />
+          <Route path="wikimedia/tree/:endpoint/:title" element={<WikimediaTreeTop />} />
           <Route path="wikimedia/:endpoint/:title" element={<WikimediaTop />} />
           <Route path="wikidata/:wditem" element={<WikidataTop />} />
           <Route path="crs/:crs" element={<CRSTop />} />
+          <Route path="code/:scheme/:code" element={<CodeTop />} />
+          <Route path="code/:scheme/:code/commons" element={<CommonsCodeTree />} />
         </Route>
       </Routes>
     </Router>
