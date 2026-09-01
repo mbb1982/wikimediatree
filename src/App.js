@@ -148,7 +148,7 @@ const WikimediaTree = ({endpoint, category}) => {
           />
         </Col>
         <Col xs={8} className="scrollable-column">
-          <WikimediaPage endpoint={endpoint} title={`Category:${currentCategory}`} />
+          <WikimediaPage endpoint={endpoint} title={currentCategory.startsWith('Category:') ? currentCategory : `Category:${currentCategory}`} />
         </Col>
       </Row>
     </Container>
@@ -298,6 +298,18 @@ const CommonsCodeTree = () => {
   );
 }
 
+const IataTree = () => {
+  const { "*" : codes } = useParams();
+  const { loading, error, data } = useSWRImmutable(`/api/iata/${codes}`, fetcher);
+  if (loading) return <div>Loading IATA codes...</div>;
+  if (error) return <div>Error loading IATA codes: {error.message}</div>;
+  return (
+    <div>
+      {data ? <WikimediaTree endpoint="commons.wikimedia.org" category={data} /> : <div>No Wikimedia articles found for IATA codes {codes}.</div>}
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
@@ -310,6 +322,9 @@ function App() {
           <Route path="crs/:crs" element={<CRSTop />} />
           <Route path="code/:scheme/:code" element={<CodeTop />} />
           <Route path="code/:scheme/:code/commons" element={<CommonsCodeTree />} />
+          <Route path="code/:scheme/:code/tree" element={<CommonsCodeTree />} />
+          <Route path="iata/*" element={<IataTree />} />
+
         </Route>
       </Routes>
     </Router>
